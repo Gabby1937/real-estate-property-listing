@@ -1,0 +1,75 @@
+{% extends "base2.html" %}
+{% block title %} Edit Agent {% endblock %}
+{% block body %}
+    <div class="breadcrumbs">
+        <!-- Breadcrumbs code here -->
+    </div>
+    <div class="content">
+        <div class="animated fadeIn">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Edit Agent</strong>
+                        </div>
+                        <div class="card-body card-block">
+                            {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                    <ul class="messages">
+                                        {% for message in messages %}
+                                            <li>{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% endwith %}
+                            <form action="{{ url_for('edit_property', property_id=property.id) }}" method="POST" enctype="multipart/form-data" class="form-horizontal">
+                                {% if form.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ form.errors }}
+                                    </div>
+                                {% endif %}
+                                {{ form.csrf_token }}
+                                <div class="row form-group">
+                                    <div class="col col-md-3"><label for="designation-input" class="form-control-label">Designation</label></div>
+                                    <div class="col-12 col-md-9"><input type="text" id="designation-input" name="designation" placeholder="Designation" class="form-control" value="{{ agent.designation }}" required></div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col col-md-3"><label for="twitter-input" class="form-control-label">Twitter Handle</label></div>
+                                    <div class="col-12 col-md-9"><input type="text" id="twitter-input" name="twitter_handle" placeholder="Twitter Handle" class="form-control" value="{{ agent.twitter_handle }}"></div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col col-md-3"><label for="instagram-input" class="form-control-label">Instagram Handle</label></div>
+                                    <div class="col-12 col-md-9"><input type="text" id="instagram-input" name="instagram_handle" placeholder="Instagram Handle" class="form-control" value="{{ agent.instagram_handle }}"></div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col col-md-3"><label for="facebook-input" class="form-control-label">Facebook Handle</label></div>
+                                    <div class="col-12 col-md-9"><input type="text" id="facebook-input" name="facebook_handle" placeholder="Facebook Handle" class="form-control" value="{{ agent.facebook_handle }}"></div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col col-md-3"><label for="image-input" class="form-control-label">Image</label></div>
+                                    <div class="col-12 col-md-9"><input type="file" id="image-input" name="image" class="form-control-file"></div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="submit" value="submit" class="btn btn-primary btn-sm">
+                                        <i class="fa fa-dot-circle-o"></i> Submit
+                                    </button>
+                                    <button type="reset" class="btn btn-danger btn-sm">
+                                        <i class="fa fa-ban"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+<!-- <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('edit_agent', agent_id={{agents.id}}) }}">Edit Agent Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('add_agent') }}">Add Agent Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('edit_user', user_id=user.id) }}">Edit User Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('add_user') }}">Add User Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('edit_property', property_id=property.id) }}">Edit Property Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('add_property') }}">Add Property Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('edit_category', category_id=category.id) }}">Edit Category Form</a></li>
+                            <li><i class="menu-icon fa fa-th"></i><a href="{{ url_for('add_category') }}">Add Category Form</a></li> -->

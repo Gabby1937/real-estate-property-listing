@@ -1,0 +1,171 @@
+{% extends "base2.html" %}
+{% block title %} Add Property {% endblock %}
+{% block body %}<!-- /header -->
+        <!-- Header-->
+
+        <div class="breadcrumbs">
+            <div class="breadcrumbs-inner">
+                <div class="row m-0">
+                    <div class="col-sm-4">
+                        <div class="page-header float-left">
+                            <div class="page-title">
+                                <h1>Dashboard</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="page-header float-right">
+                            <div class="page-title">
+                                <ol class="breadcrumb text-right">
+                                    <li><a href="#">Dashboard</a></li>
+                                    <li><a href="#">Forms</a></li>
+                                    <li class="active">Basic</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="animated fadeIn">
+
+
+                <div class="row">
+                    
+
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>Basic Form</strong> Elements
+                            </div>
+                            <div class="card-body card-block">
+                                {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                                {% endwith %}
+                                <form action="{{ url_for('add_property') }}" method="POST" enctype="multipart/form-data" class="form-horizontal">
+                                    {% if form.errors %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ form.errors }}
+                                        </div>
+                                    {% endif %}
+                                    {{ form.csrf_token }}
+                                    {% if property %}
+                                        <input type="hidden" name="property_id" value="{{ property.id }}">
+                                    {% endif %}
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label class="form-control-label"></label>Property</div>
+                                        <div class="col-12 col-md-9">
+                                            <p class="form-control-static">Details</p>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="text-input" class="form-control-label">Property name</label></div>
+                                        <div class="col-12 col-md-9">
+                                            {{ form.name(class="form-control", placeholder="Property name") }}
+                                            <small class="form-text text-muted">Name of the Property.</small>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="size-input" class="form-control-label">Size Input</label></div>
+                                        <div class="col-12 col-md-9">
+                                            {{ form.size(class="form-control", placeholder="Enter Property Size...e.g(123sqft)") }}
+                                            <small class="help-block form-text">Enter Property size in Square-Feet(Sqft)</small>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="bed-input" class="form-control-label">Bed-room Input</label></div>
+                                        <div class="col-12 col-md-9">
+                                            {{ form.bed(class="form-control", placeholder="Enter Number of Bed-rooms") }}
+                                            <small class="help-block form-text">Enter the Property amount of Bed-rooms</small>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="price">Price:</label></div>
+                                        <div class="col-12 col-md-9">
+                                            {{ form.price(class="form-control", step="0.01", required=true) }}
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="password-input" class="form-control-label">Bath Input</label></div>
+                                        <div class="col-12 col-md-9">
+                                            {{ form.bath(class="form-control", placeholder="Enter amount of Bath-room") }}
+                                            <small class="help-block form-text">Please enter the amount of Bath-rooms</small>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="textarea-input" class="form-control-label">Location</label></div>
+                                        <div class="col-12 col-md-9">
+                                            {{ form.address(class="form-control", rows="9", placeholder="Content...") }}
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="property_type" class="form-control-label">Property Type</label></div>
+                                        <div class="col-12 col-md-9">
+                                            <select id="property_type" name="category_id" required>
+                                                <option value="">Select Property Type</option>
+                                                {% for category in categories %}
+                                                    <option value="{{ category.id }}" {% if property and property.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label class="form-control-label">Sale Status</label></div>
+                                        <div class="col col-md-9">
+                                            <div class="form-check">
+                                                {{ form.status(value="Sale", class="form-check-input") }}
+                                                <label for="radio1" class="form-check-label">
+                                                    For Sale
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                {{ form.status(value="Rent", class="form-check-input") }}
+                                                <label for="radio2" class="form-check-label">
+                                                    For Rent
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="file-input" class="form-control-label">Property Image</label></div>
+                                        <div class="col-12 col-md-9">
+                                            <input type="file" id="file-input" name="file-input" class="form-control-file">
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button type="submit" value="submit" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-dot-circle-o"></i> Submit
+                                        </button>
+                                        <button type="reset" class="btn btn-danger btn-sm">
+                                            <i class="fa fa-ban"></i> Reset
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                
+                                
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                        
+                </div>
+
+            </div>
+
+
+        </div><!-- .animated -->
+        <!-- .content -->
+
+    <div class="clearfix"></div>
+
+    {% endblock %}

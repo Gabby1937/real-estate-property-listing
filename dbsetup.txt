@@ -1,0 +1,44 @@
+INSERT INTO categories (name) VALUES ('Apartment');
+INSERT INTO categories (name) VALUES ('Villa');
+INSERT INTO categories (name) VALUES ('Home');
+INSERT INTO categories (name) VALUES ('Office');
+INSERT INTO categories (name) VALUES ('Building');
+INSERT INTO categories (name) VALUES ('Townhouse');
+INSERT INTO categories (name) VALUES ('Shop');
+INSERT INTO categories (name) VALUES ('Garage');
+
+
+name
+price
+bad
+bath
+address
+status
+category_id
+images
+size
+
+
+INSERT INTO users (username, email, password) VALUES ('Gabby1937', 'gabrieljohnson1937@gmail.com', 'gj193752');
+
+CREATE TABLE users(
+    id SERIAL,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE properties(
+    id SERIAL,
+    name VARCHAR(255) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    category_id VARCHAR NOT NULL,
+    status VARCHAR NOT NULL,
+    address VARCHAR NOT NULL,
+    price VARCHAR NOT NULL,
+    size VARCHAR NOT NULL,
+    bed VARCHAR NOT NULL,
+    bath VARCHAR NOT NULL,
+    PRIMARY KEY (id)
+);

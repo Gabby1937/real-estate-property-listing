@@ -1,0 +1,119 @@
+{% extends "base2.html" %}
+{% block title %} Add Agent {% endblock %}
+{% block body %}<!-- /header -->
+        <!-- Header-->
+
+        <div class="breadcrumbs">
+            <div class="breadcrumbs-inner">
+                <div class="row m-0">
+                    <div class="col-sm-4">
+                        <div class="page-header float-left">
+                            <div class="page-title">
+                                <h1>Dashboard</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="page-header float-right">
+                            <div class="page-title">
+                                <ol class="breadcrumb text-right">
+                                    <li><a href="#">Dashboard</a></li>
+                                    <li><a href="#">Forms</a></li>
+                                    <li class="active">Basic</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="animated fadeIn">
+
+
+                <div class="row">
+                    
+
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>Basic Form</strong> Elements
+                            </div>
+                            <div class="card-body card-block">
+                                {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                    <li>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                                {% endwith %}
+                                <form action="{{ url_for('add_agent')}}" method="POST" enctype="multipart/form-data" class="form-horizontal"> 
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label class="form-control-label"></label>Property</div>
+                                        <div class="col-12 col-md-9">
+                                            <p class="form-control-static">Details</p>
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="fullname-input" class="form-control-label">Full Name</label></div>
+                                        <div class="col-12 col-md-9"><input type="text" id="fullname-input" name="fullname" placeholder="Full Name" class="form-control" required></div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="designation-input" class="form-control-label">Designation</label></div>
+                                        <div class="col-12 col-md-9"><input type="text" id="designation-input" name="designation" placeholder="Designation" class="form-control" required></div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="twitter-input" class="form-control-label">Twitter Handle</label></div>
+                                        <div class="col-12 col-md-9"><input type="text" id="twitter-input" name="twitter_handle" placeholder="Twitter Handle" class="form-control"></div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="instagram-input" class="form-control-label">Instagram Handle</label></div>
+                                        <div class="col-12 col-md-9"><input type="text" id="instagram-input" name="instagram_handle" placeholder="Instagram Handle" class="form-control"></div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="facebook-input" class="form-control-label">Facebook Handle</label></div>
+                                        <div class="col-12 col-md-9"><input type="text" id="facebook-input" name="facebook_handle" placeholder="Facebook Handle" class="form-control"></div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <div class="col col-md-3"><label for="file-input" class="form-control-label">Image</label></div>
+                                        <div class="col-12 col-md-9"><input type="file" id="file-input" name="image" class="form-control-file" required></div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button type="submit" value="submit" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-dot-circle-o"></i> Submit
+                                        </button>
+                                        <button type="reset" class="btn btn-danger btn-sm">
+                                            <i class="fa fa-ban"></i> Reset
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                        
+                </div>
+
+            </div>
+
+
+        </div><!-- .animated -->
+        <!-- .content -->
+
+    <div class="clearfix"></div>
+
+    {% endblock %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
