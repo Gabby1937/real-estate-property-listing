@@ -26,7 +26,7 @@ UPLOAD_FOLDER = './static/img'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://boss:key@localhost:5432/realestatedb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = 'mysecretkey'
+app.secret_key = 'MVyH6mODK2CMHCvCGfVHXzxPe9E2Pmnap9tTzXabDttc1tOLY3f9Z3oYam-5PEPT'
 csrf = CSRFProtect(app)
 app.static_folder = 'static'
 
@@ -197,12 +197,53 @@ def requires_auth(f):
 #     #return render_template('index.html', properties=filtered_properties, categories=categories, countries=countries)
 
 
+# @app.route("/", methods=['GET', 'POST'])
+# def index():
+#     # Check if user is authenticated
+#     if 'user_id' not in session:
+#         return redirect(url_for('login'))  # Redirect to the login page if user is not authenticated
+
+#     properties = Property.query.all()
+#     categories = Category.query.all()
+#     agents = Agent.query.all()
+#     filtered_properties = properties  # Set the default value for filtered_properties
+    
+#     countries = get_countries()  # Retrieve the list of countries
+#     user_id = session.get('user_id')  # Fetch the user_id from the session (update it based on your authentication mechanism)
+#     user = User.query.get(user_id)  # Fetch the logged-in user from the database
+#     user_role = user.role if user else None # Get the user's role
+    
+#     if countries is not None:
+#         countries = sorted(countries, key=lambda c: c['name']['common'])
+#     else:
+#         300
+    
+#     form = MyForm(request.form)  # Create an instance of the form
+
+#     if request.method == 'POST' and form.validate():
+#         keyword = form.keyword.data
+#         property_type = form.property_type.data
+#         location = form.location.data
+
+#         if keyword:
+#             # Search by property name or location
+#             filtered_properties = [p for p in filtered_properties if keyword.lower() in p.name.lower() or keyword.lower() in p.location.lower()]
+
+#         if property_type and property_type != 'all':
+#             # Search by property type (category)
+#             filtered_properties = [p for p in filtered_properties if p.category_id == int(property_type)]
+
+#         if location and location != 'all':
+#             # Search by location
+#             filtered_properties = [p for p in filtered_properties if location.lower() in p.location.lower()]
+
+#         flash('Form submitted successfully')
+#         return redirect(url_for('index'))  # Redirect to the index page after form submission
+
+#     return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role)
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
-    # Check if user is authenticated
-    if 'user_id' not in session:
-        return redirect(url_for('login'))  # Redirect to the login page if user is not authenticated
-
     properties = Property.query.all()
     categories = Category.query.all()
     agents = Agent.query.all()
@@ -240,7 +281,7 @@ def index():
         flash('Form submitted successfully')
         return redirect(url_for('index'))  # Redirect to the index page after form submission
 
-    return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role)
+    return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role) #countries=countries)
 
 
 # Define the category_icons dictionary
@@ -386,6 +427,7 @@ def login():
         flash('Invalid username or password', 'error')
         
     return render_template('login.html', form=form)
+
 
 @app.route("/logout")
 @login_required
