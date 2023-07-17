@@ -4,7 +4,7 @@ from sqlalchemy import or_
 from flask_migrate import Migrate
 import psycopg2, os, requests
 from models import Category, Property, User, Role, Agent, PropertyForm, MyForm, AuthError, RegistrationForm, LoginForm
-from database import db, migrate
+from database import app, db, migrate
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_required, LoginManager, login_user, logout_user, current_user
@@ -17,21 +17,20 @@ from jose import jwt
 import json
 from urllib.request import urlopen
 
-
 app = Flask(__name__)
-csrf = CSRFProtect(app)
 
 
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}  # define allowed image file extensions
-UPLOAD_FOLDER = './static/img'  # set your upload folder path
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
+UPLOAD_FOLDER = './static/img'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://boss:key@localhost:5432/realestatedb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'mysecretkey'
+csrf = CSRFProtect(app)
 app.static_folder = 'static'
+
 db.init_app(app)
-migrate = Migrate(app, db)
 migrate.init_app(app, db)
 
 # Flask-Login setup
@@ -40,8 +39,6 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Load the user object from the database based on the user ID
-    # Replace this with your actual logic to retrieve the user from the database
     user = User.query.get(int(user_id))
     return user
 
@@ -132,8 +129,6 @@ def verify_decode_jwt(token):
 # decoded_payload = verify_decode_jwt(token)
 # print(decoded_payload)
 
-app = Flask(__name__)
-
 def get_token_auth_header():
 ## check if authorization is not in request
     if 'Authorization' not in request.headers:
@@ -159,8 +154,55 @@ def requires_auth(f):
         return f(payload, *args, **kwargs)
     return wrapper
 
+# @app.route("/", methods=['GET', 'POST'])
+# def index():
+#     properties = Property.query.all()
+#     categories = Category.query.all()
+#     agents = Agent.query.all()
+#     filtered_properties = properties  # Set the default value for filtered_properties
+    
+#     countries = get_countries()  # Retrieve the list of countries
+#     user_id = session.get('user_id')  # Fetch the user_id from the session (update it based on your authentication mechanism)
+#     user = User.query.get(user_id)  # Fetch the logged-in user from the database
+#     user_role = user.role if user else None # Get the user's role
+    
+#     if countries is not None:
+#         countries = sorted(countries, key=lambda c: c['name']['common'])
+#     else:
+#         300
+    
+#     form = MyForm(request.form)  # Create an instance of the form
+
+#     if request.method == 'POST' and form.validate():
+#         keyword = form.keyword.data
+#         property_type = form.property_type.data
+#         location = form.location.data
+
+#         if keyword:
+#             # Search by property name or location
+#             filtered_properties = [p for p in filtered_properties if keyword.lower() in p.name.lower() or keyword.lower() in p.location.lower()]
+
+#         if property_type and property_type != 'all':
+#             # Search by property type (category)
+#             filtered_properties = [p for p in filtered_properties if p.category_id == int(property_type)]
+
+#         if location and location != 'all':
+#             # Search by location
+#             filtered_properties = [p for p in filtered_properties if location.lower() in p.location.lower()]
+
+#         flash('Form submitted successfully')
+#         return redirect(url_for('index'))  # Redirect to the index page after form submission
+
+#     return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role) #countries=countries)
+#     #return render_template('index.html', properties=filtered_properties, categories=categories, countries=countries)
+
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    # Check if user is authenticated
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # Redirect to the login page if user is not authenticated
+
     properties = Property.query.all()
     categories = Category.query.all()
     agents = Agent.query.all()
@@ -198,8 +240,8 @@ def index():
         flash('Form submitted successfully')
         return redirect(url_for('index'))  # Redirect to the index page after form submission
 
-    return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role) #countries=countries)
-    #return render_template('index.html', properties=filtered_properties, categories=categories, countries=countries)
+    return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role)
+
 
 # Define the category_icons dictionary
 category_icons = {
@@ -265,11 +307,12 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-        # Debugging statement to check the form data
-        print(f'Form data: username={username}, email={email}, password={password}')
+        
+        # Hash the password
+        hashed_password = generate_password_hash(password)
         
         # Create a new User object and add it to the database
-        new_user = User(username=username, email=email, password=password)
+        new_user = User(username=username, email=email, password=hashed_password)
         
         # Assign a role to the user (e.g., "user" role)
         user_role = Role.query.filter_by(name='user').first()
@@ -285,12 +328,37 @@ def register():
         finally:
             db.session.close()
         
-        flash('Account created successfully!', 'success')
         return redirect(url_for('login'))
 
     return render_template('signup.html', form=form)
 
 
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     form = LoginForm()
+
+#     if request.method == "POST" and form.validate_on_submit():
+#         username = form.username.data
+#         password = form.password.data
+        
+#         # Check if the user exists in the database
+#         user = User.query.filter_by(username=username).first()
+#         if user and check_password_hash(user.password, password):
+#             # Use Flask-Login's login_user function to log in the user
+#             login_user(user)
+#             flash('Login successful!', 'success')
+            
+#             # Redirect the user based on their role
+#             if current_user.role.name == 'admin':
+#                 flash('Login successful!', 'success')
+#                 return redirect(url_for('admin_index'))
+#             else:
+#                 flash('Login successful!', 'success')
+#                 return redirect(url_for('index'))
+        
+#         flash('Invalid username or password', 'error')
+        
+#     return render_template('login.html', form=form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

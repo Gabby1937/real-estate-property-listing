@@ -78,6 +78,7 @@
                         {% if user_role == 'admin' %}
                             <a href="{{ url_for('admin_index') }}" class="nav-item nav-link">Admin</a>
                         {% endif %}
+                        <a href="https://gabby.us.auth0.com/authorize?audience=homes&response_type=token&client_id=ar1SuaZCfickmVbDaCutbra0Uxye44lY&redirect_uri=https://127.0.0.1:5000/login-result">Login</a>
                     </div>
                     <a href="{{ url_for('add_property')}}" class="btn btn-primary px-3 d-none d-lg-flex">Add Property</a>
                 </div>
