@@ -434,8 +434,12 @@ def login():
 def logout():
     # Use Flask-Login's logout_user function to log out the user
     logout_user()
+
+    # Get the Auth0 logout URL
+    logout_url = "https://YOUR_AUTH0_DOMAIN/v2/logout?returnTo={}&client_id=YOUR_AUTH0_CLIENT_ID".format(url_for('logout_callback', _external=True))
+
     flash('Logged out successfully!', 'success')
-    return redirect(url_for('index'))
+    return redirect(logout_url)
 
 
 @app.route("/testimonial")
