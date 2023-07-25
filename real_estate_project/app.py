@@ -15,6 +15,7 @@ from wtforms.validators import DataRequired, Email, NumberRange, Optional, Input
 from functools import wraps
 from jose import jwt
 import json
+from authlib.integrations.flask_client import OAuth
 from urllib.request import urlopen
 
 app = Flask(__name__)
@@ -44,6 +45,30 @@ def load_user(user_id):
 
 with app.app_context():
     db.create_all()
+    
+# Configuration
+# UPDATE THIS TO REFLECT YOUR AUTH0 ACCOUNT
+AUTH0_DOMAIN = 'gabby.us.auth0.com'
+ALGORITHMS = ['RS256']
+API_AUDIENCE = 'homes'
+AUTH0_CLIENT_ID = 'ar1SuaZCfickmVbDaCutbra0Uxye44lY'
+AUTH0_CLIENT_SECRET = 'MVyH6mODK2CMHCvCGfVHXzxPe9E2Pmnap9tTzXabDttc1tOLY3f9Z3oYam-5PEPT'
+AUTH0_AUDIENCE = API_AUDIENCE
+AUTH0_REDIRECT_URI = 'http://127.0.0.1:5000/'
+
+# Initialize the OAuth client
+oauth = OAuth()
+auth0 = oauth.register(
+    'auth0',
+    client_id=AUTH0_CLIENT_ID,
+    client_secret=AUTH0_CLIENT_SECRET,
+    api_base_url=f'https://{AUTH0_DOMAIN}',
+    access_token_url=f'https://{AUTH0_DOMAIN}/oauth/token',
+    authorize_url=f'https://{AUTH0_DOMAIN}/authorize',
+    client_kwargs={
+        'scope': 'openid profile',
+    },
+)
 
 
 
@@ -56,11 +81,7 @@ def get_countries():
     else:
         return None
     
-# Configuration
-# UPDATE THIS TO REFLECT YOUR AUTH0 ACCOUNT
-AUTH0_DOMAIN = 'gabby.us.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'homes'
+
 
 
         
@@ -154,93 +175,6 @@ def requires_auth(f):
         return f(payload, *args, **kwargs)
     return wrapper
 
-# @app.route("/", methods=['GET', 'POST'])
-# def index():
-#     properties = Property.query.all()
-#     categories = Category.query.all()
-#     agents = Agent.query.all()
-#     filtered_properties = properties  # Set the default value for filtered_properties
-    
-#     countries = get_countries()  # Retrieve the list of countries
-#     user_id = session.get('user_id')  # Fetch the user_id from the session (update it based on your authentication mechanism)
-#     user = User.query.get(user_id)  # Fetch the logged-in user from the database
-#     user_role = user.role if user else None # Get the user's role
-    
-#     if countries is not None:
-#         countries = sorted(countries, key=lambda c: c['name']['common'])
-#     else:
-#         300
-    
-#     form = MyForm(request.form)  # Create an instance of the form
-
-#     if request.method == 'POST' and form.validate():
-#         keyword = form.keyword.data
-#         property_type = form.property_type.data
-#         location = form.location.data
-
-#         if keyword:
-#             # Search by property name or location
-#             filtered_properties = [p for p in filtered_properties if keyword.lower() in p.name.lower() or keyword.lower() in p.location.lower()]
-
-#         if property_type and property_type != 'all':
-#             # Search by property type (category)
-#             filtered_properties = [p for p in filtered_properties if p.category_id == int(property_type)]
-
-#         if location and location != 'all':
-#             # Search by location
-#             filtered_properties = [p for p in filtered_properties if location.lower() in p.location.lower()]
-
-#         flash('Form submitted successfully')
-#         return redirect(url_for('index'))  # Redirect to the index page after form submission
-
-#     return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role) #countries=countries)
-#     #return render_template('index.html', properties=filtered_properties, categories=categories, countries=countries)
-
-
-# @app.route("/", methods=['GET', 'POST'])
-# def index():
-#     # Check if user is authenticated
-#     if 'user_id' not in session:
-#         return redirect(url_for('login'))  # Redirect to the login page if user is not authenticated
-
-#     properties = Property.query.all()
-#     categories = Category.query.all()
-#     agents = Agent.query.all()
-#     filtered_properties = properties  # Set the default value for filtered_properties
-    
-#     countries = get_countries()  # Retrieve the list of countries
-#     user_id = session.get('user_id')  # Fetch the user_id from the session (update it based on your authentication mechanism)
-#     user = User.query.get(user_id)  # Fetch the logged-in user from the database
-#     user_role = user.role if user else None # Get the user's role
-    
-#     if countries is not None:
-#         countries = sorted(countries, key=lambda c: c['name']['common'])
-#     else:
-#         300
-    
-#     form = MyForm(request.form)  # Create an instance of the form
-
-#     if request.method == 'POST' and form.validate():
-#         keyword = form.keyword.data
-#         property_type = form.property_type.data
-#         location = form.location.data
-
-#         if keyword:
-#             # Search by property name or location
-#             filtered_properties = [p for p in filtered_properties if keyword.lower() in p.name.lower() or keyword.lower() in p.location.lower()]
-
-#         if property_type and property_type != 'all':
-#             # Search by property type (category)
-#             filtered_properties = [p for p in filtered_properties if p.category_id == int(property_type)]
-
-#         if location and location != 'all':
-#             # Search by location
-#             filtered_properties = [p for p in filtered_properties if location.lower() in p.location.lower()]
-
-#         flash('Form submitted successfully')
-#         return redirect(url_for('index'))  # Redirect to the index page after form submission
-
-#     return render_template('index.html', form=form, properties=filtered_properties, categories=categories, category_icons=category_icons, countries=countries, agents=agents, user_role=user_role)
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -374,72 +308,33 @@ def register():
     return render_template('signup.html', form=form)
 
 
-# @app.route("/login", methods=["GET", "POST"])
-# def login():
-#     form = LoginForm()
 
-#     if request.method == "POST" and form.validate_on_submit():
-#         username = form.username.data
-#         password = form.password.data
-        
-#         # Check if the user exists in the database
-#         user = User.query.filter_by(username=username).first()
-#         if user and check_password_hash(user.password, password):
-#             # Use Flask-Login's login_user function to log in the user
-#             login_user(user)
-#             flash('Login successful!', 'success')
-            
-#             # Redirect the user based on their role
-#             if current_user.role.name == 'admin':
-#                 flash('Login successful!', 'success')
-#                 return redirect(url_for('admin_index'))
-#             else:
-#                 flash('Login successful!', 'success')
-#                 return redirect(url_for('index'))
-        
-#         flash('Invalid username or password', 'error')
-        
-#     return render_template('login.html', form=form)
-
-@app.route("/login", methods=["GET", "POST"])
+@app.route('/login')
 def login():
-    form = LoginForm()
+    return auth0.authorize_redirect(redirect_uri=AUTH0_REDIRECT_URI)
 
-    if request.method == "POST" and form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        
-        # Check if the user exists in the database
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            # Use Flask-Login's login_user function to log in the user
-            login_user(user)
-            flash('Login successful!', 'success')
-            
-            # Redirect the user based on their role
-            if current_user.role.name == 'admin':
-                flash('Login successful!', 'success')
-                return redirect(url_for('admin_index'))
-            else:
-                flash('Login successful!', 'success')
-                return redirect(url_for('index'))
-        
-        flash('Invalid username or password', 'error')
-        
-    return render_template('login.html', form=form)
-
-
-@app.route("/logout")
-@login_required
+@app.route('/logout')
 def logout():
-    # Use Flask-Login's logout_user function to log out the user
-    logout_user()
+    session.clear()
+    return redirect(url_for('index'))
 
-    # Get the Auth0 logout URL
-    logout_url = "https://YOUR_AUTH0_DOMAIN/v2/logout?returnTo={}&client_id=YOUR_AUTH0_CLIENT_ID".format(url_for('logout_callback', _external=True))
+@app.route('/callback')
+def callback():
+    # Get the access token from Auth0
+    auth0.authorize_access_token()
 
-    flash('Logged out successfully!', 'success')
-    return redirect(logout_url)
+    # Fetch the user information from Auth0
+    userinfo = auth0.get('userinfo').json()
+
+    # Extract relevant user information
+    user_id = userinfo['sub']  # Assuming 'sub' contains the unique user ID
+
+    # You can save the user ID or other relevant user information to the session
+    session['user_id'] = user_id
+
+    # Redirect the user to the homepage ('index' route)
+    return redirect(url_for('index'))
+
 
 
 @app.route("/testimonial")
@@ -797,13 +692,6 @@ def delete_agent(agent_id):
 def admin():
     return render_template('admin.html')
 
-# ALTER TABLE properties ADD COLUMN location text;
-
-# UPDATE properties SET location = '4, RealEstate Project road Dir' WHERE id = 4;
-# UPDATE properties SET location = '56, John Wick st. Califonia, US' WHERE id = 5;
-# UPDATE properties SET location = '8, Fred st. Bahamas, Caribbean' WHERE id = 6;
-# UPDATE properties SET location = '45, Sunshine st. Manhattan Beach' WHERE id = 7;
-# UPDATE properties SET location = '77, Apollo st. Asprovalta, Greece' WHERE id = 8;
 
 #-----------------------------------------------------------------------------------------------
 # Admin Files
