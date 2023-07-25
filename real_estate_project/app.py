@@ -83,6 +83,14 @@ def get_countries():
     
 
 
+# Implementing Role-Based Permissions
+def check_permissions(permission, payload):
+    if 'permissions' not in payload:
+        abort(400)
+
+    if permission not in payload['permissions']:
+        abort(403)
+    return True
 
         
         
