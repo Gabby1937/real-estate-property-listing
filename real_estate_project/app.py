@@ -416,7 +416,9 @@ def search():
 
     return render_template('index.html', properties=filtered_properties, categories=categories, countries=countries, category_icons=category_icons)
 
-
+['get:properties', 'post:properties', 
+'edit:properties', 'delete:properties', 
+'get:agents', 'post:agents', 'delete:agents']
     
 @app.route('/properties', methods=['GET', 'POST', 'PUT'])
 @login_required
@@ -475,7 +477,7 @@ def add_property():
 
 @app.route('/properties/<int:property_id>', methods=['GET', 'POST'])
 @login_required
-@roles_required('admin')
+@requires_auth(['edit:properties', 'get:properties', 'post:properties'])
 def edit_property(property_id):
     form = PropertyForm()
     categories = Category.query.all()
@@ -543,7 +545,7 @@ def edit_property(property_id):
 
 @app.route('/properties/<int:id>', methods=['POST'])
 @login_required
-@roles_required('admin')
+@roles_required(['edit:properties', 'get:properties', 'post:properties'])
 def update_property(id):
     # Retrieve the property from the database
     property = Property.query.get_or_404(id)
@@ -582,6 +584,7 @@ def update_property(id):
 
 # Delete property
 @app.route('/properties/<int:id>', methods=['DELETE'])
+@requires_auth(['get:properties', 'delete:properties'])
 def delete_property(id):
     property = Property.query.get_or_404(id)
     db.session.delete(property)
@@ -591,6 +594,7 @@ def delete_property(id):
 
 # Read properties
 @app.route('/properties', methods=['GET'])
+@requires_auth(['get:properties'])
 def get_properties():
     properties = Property.query.all()
     result = []
@@ -614,6 +618,7 @@ def get_properties():
 
 # Endpoint to add a new agent
 @app.route('/agents/register', methods=['GET', 'POST'])
+@requires_auth(['get:agents', 'post:agents'])
 def add_agent():
     if request.method == 'POST':
         # Process the form data
@@ -656,6 +661,7 @@ def add_agent():
 
 # Endpoint to retrieve all agents
 @app.route('/admin/agents', methods=['GET'])
+@requires_auth(['get:agents'])
 def get_agents():
     agents = Agent.query.all()
     return render_template('admin-agents.html', agents=agents)
