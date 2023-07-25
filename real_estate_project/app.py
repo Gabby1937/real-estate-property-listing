@@ -89,13 +89,19 @@ def get_countries():
 # Adding a check permission function
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
-        abort(400)
+        raise AuthError({
+            'code': 'invalid_claims',
+            'description': 'Permissions not included in JWT.'
+        }, 400)
 
     if permission not in payload['permissions']:
-        abort(403)
+        raise AuthError({
+            'code': 'unauthorized',
+            'description': 'Permission not found.'
+        }, 403)
     return True
 
-# Adding function decorator for require auth permissions.
+# Adding function decorator for require auth permissions
 def requires_auth(permission=''):
     def requires_auth_decorator(f):
         @wraps(f)
@@ -190,16 +196,6 @@ def get_token_auth_header():
         abort(401) 
     return header_parts[1]
 
-def requires_auth(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        jwt = get_token_auth_header()
-        try:
-            payload = verify_decode_jwt(jwt)
-        except:
-            abort(401)
-        return f(payload, *args, **kwargs)
-    return wrapper
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -424,7 +420,9 @@ def search():
     
 @app.route('/properties', methods=['GET', 'POST', 'PUT'])
 @login_required
-@roles_required('admin')
+@requires_auth(['get:properties', 'post:properties', 
+                'edit:properties', 'delete:properties', 
+                'get:agents', 'post:agents', 'delete:agents'])
 def add_property():
     form = PropertyForm()
     categories = Category.query.all()
