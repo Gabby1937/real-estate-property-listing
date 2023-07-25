@@ -82,8 +82,11 @@ def get_countries():
         return None
     
 
-
+#######################################################################################
 # Implementing Role-Based Permissions
+#######################################################################################
+
+# Adding a check permission function
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
         abort(400)
@@ -92,7 +95,22 @@ def check_permissions(permission, payload):
         abort(403)
     return True
 
-        
+# Adding function decorator for require auth permissions.
+def requires_auth(permission=''):
+    def requires_auth_decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            token = get_token_auth_header()
+            try:
+                payload = verify_decode_jwt(token)
+            except:
+                abort(401)
+                
+            check_permissions(permission, payload)    
+                
+            return f(payload, *args, **kwargs)
+        return wrapper
+    return requires_auth_decorator
         
 ## Auth Header
 def verify_decode_jwt(token):
